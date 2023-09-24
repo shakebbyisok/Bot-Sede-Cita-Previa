@@ -1,14 +1,11 @@
-const puppeteer = require('puppeteer-extra');
+const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
 const puppeteerExtra = require('puppeteer-extra');
 const stealthPlugin = require('puppeteer-extra-plugin-stealth');
 
 const rand_url = 'https://icp.administracionelectronica.gob.es/icpplus/index.html';
 
-
-
 puppeteerExtra.use(stealthPlugin());
-
 
 async function main() {
     while (true) {
@@ -18,57 +15,37 @@ async function main() {
 
         const page = await browser.newPage();
 
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
-
-        await page.setExtraHTTPHeaders({
-            'Accept-Language': 'en-US,en;q=0.9',
-            // Add any other required headers here.
-        });
- 
-
         try {
-            // Increase the navigation timeout to 60 seconds (for example).
-            await page.goto(rand_url, { timeout: 60000 });
+            await page.goto(rand_url);
 
             const content = await page.content();
             const $ = cheerio.load(content);
 
-          // Wait for the select element with ID 'form' to become available.
-      await page.waitForSelector('#form', { timeout: 10000 });
+            // Wait for the select element with ID 'form' to become available.
+            await page.waitForSelector('#form', { timeout: 10000 });
 
-      // Select the option by value.
-      await page.select('#form', '/icpplus/citar?p=43&locale=es');
-      console.log("Option selected successfully.");
+            // Select the option by value.
+            await page.select('#form', '/icpplus/citar?p=43&locale=es');
+            console.log("Option selected successfully.");
 
-      // Add a random delay between 1 to 3 seconds before the next action
-      const minActionDelay = 1000; // 1 second
-      const maxActionDelay = 3000; // 3 seconds
-      const actionDelay = Math.floor(Math.random() * (maxActionDelay - minActionDelay + 1)) + minActionDelay;
-      console.log(`Waiting for ${actionDelay / 1000} seconds before the next action...`);
-      await page.waitForTimeout(actionDelay);
+            // Wait for 1 second before proceeding to the next action.
+            await page.waitForTimeout(1000);
 
-      // Wait for the "Aceptar" button to become available and then click it.
-      await page.waitForSelector('#btnAceptar', { timeout: 5000 });
-      await page.click('#btnAceptar');
-      console.log("Aceptar button clicked successfully.");
+            // Wait for the "Aceptar" button to become available and then click it.
+            await page.waitForSelector('#btnAceptar', { timeout: 5000 });
+            await page.click('#btnAceptar');
+            console.log("Aceptar button clicked successfully.");
 
-      // Add another random delay between 1 to 3 seconds before the next action
-      const actionDelay2 = Math.floor(Math.random() * (maxActionDelay - minActionDelay + 1)) + minActionDelay;
-      console.log(`Waiting for ${actionDelay2 / 1000} seconds before the next action...`);
-      await page.waitForTimeout(actionDelay2);
+            // Now, let's select the option with value="2" within the optgroup.
+            await selectOptionWithValueTwo(page);
+            console.log("Option with value='2' within optgroup selected successfully.");
 
-      // Now, let's select the option with value="2" within the optgroup.
-      await selectOptionWithValueTwo(page);
-      console.log("Option with value='2' within optgroup selected successfully.");
+            // Wait for 1 second before proceeding to the next action.
+            await page.waitForTimeout(1000);
 
-      // Add a random delay between 1 to 3 seconds before the next action
-      const actionDelay3 = Math.floor(Math.random() * (maxActionDelay - minActionDelay + 1)) + minActionDelay;
-      console.log(`Waiting for ${actionDelay3 / 1000} seconds before the next action...`);
-      await page.waitForTimeout(actionDelay3);
-
-      // Now, let's select the option with value="4037".
-      await selectOptionWithValue4037(page);
-      console.log("Option with value='4037' selected successfully.");
+            // Now, let's select the option with value="4037".
+            await selectOptionWithValue4037(page);
+            console.log("Option with value='4037' selected successfully.");
 
             // Wait for 1 second before proceeding to the next action.
             await page.waitForTimeout(1000);
@@ -96,9 +73,11 @@ async function main() {
             // You can continue with further interactions as needed.
 
             // ... (remaining code)
+
         } catch (error) {
             console.error("An error occurred:", error);
         } finally {
+            // Close the browser at the end of each iteration.
             await browser.close();
         }
 
